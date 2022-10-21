@@ -4,7 +4,7 @@ var bodyParser = require('body-parser')
 //framework express
 var app=express();
 //const PORT=8000;
-const port = process.env.PORT || 8000
+const PORT = process.env.PORT || 8000
 //express-handlebars - https://github.com/ericf/express-handlebars
 const { engine }   = require('express-handlebars');
 // define a extensão e a instância do handlebars com o 
