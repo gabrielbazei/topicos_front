@@ -1,0 +1,28 @@
+
+
+<html>
+<head>
+  <title>Cadastre-se</title>
+  <script src="login.js"></script>
+  <link rel="stylesheet" href="login.css">
+  <meta charset="UTF-8">
+</head>
+<body>
+  <div class="login">
+    <h1>Cadastro</h1>
+    <form method="post" action="/cadastrar">
+      <p><input type="text" name="login" value="" placeholder="Login"></p>
+      <p><input type="password" name="senha" value="" placeholder="Senha"></p>
+      <p><input type="password" name="confSenha" value="" placeholder="Confirme a senha"></p>
+      <p><input type="text" name="email" value="" placeholder="Email"></p>
+      <p><input type="number" name="telefone" value="" placeholder="Telefone"></p>
+      <p><input type="text" name="endereco" value="" placeholder="Endereço"></p>
+      <p class="submit"><input type="submit" name="commit" value="Cadastrar"></p>
+    </form>
+  </div>
+
+  <div class="login-help">
+    <p><a href="/">Já possui login? </a></p>
+  </div>
+</body>
+</html>

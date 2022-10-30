@@ -13,6 +13,7 @@ const { engine }   = require('express-handlebars');
 
 const service=require("./services/cadastro.service");
 const problemas=require("./services/problemas");
+const { text } = require("body-parser");
 
 
 app.engine('hbs', engine({extname: '.hbs',defaultLayout: null}));
@@ -31,118 +32,95 @@ app.use(express.static('public'));
 app.get("/", function(req,res){
     res.render('index',{})
 });
+//ok
+app.post("/logar",async function(req,res){
+    const response= await service.logar({
+        login:req.body.login,
+        senha:req.body.senha});
 
-app.get("/cadastro", function(req,res){
-    res.render('cadastro',{})
+        if(response.status == 201) {
+            const response2= await service.mostraproblemas({});
+            res.render('dashboard.ejs',{
+                lista: problemas.mostraTodos(response2.data),
+            })
+        } else{
+            res.render('index',{})
+        }
 });
-
-
+//ok
 app.post("/procurar",async function(req,res){
-    res.render('tela.ejs',{
-        lista: problemas.mostraEspecifico(req.body.tipo,req.body.problema)   
+    var id=req.body.problema;
+    const response= await service.procuraProblema({
+        problemaID:id});
+    var titulo = response.data.titulo
+    var situacao = response.data.situacao
+    var local = response.data.local
+    var desc = response.data.desc
+    const response2= await service.procuraComentario({
+        problemaID:id});
+    res.render('problema.ejs',{
+        problema: problemas.mostraEspecifico(id,titulo,situacao,local,desc),
+        Comentarios: problemas.carregaComentarios(response2.data),
+        novoId: id
     });
 })
+//ok
 app.post("/novoProblema",async function(req,res){
-    res.render('tela.ejs',{
-        lista: problemas.novoProblema(req.body.tipo)   
+    res.render('cadastrarproblema.ejs',{
+        problema: problemas.cadastrarProblema()   
     });
 })
-app.post("/listaUsuarios",async function(req,res){
-    res.render('tela.ejs',{
-        lista: problemas.listaUsuarios(req.body.tipo)   
-    });
-})
+
 app.post("/salvarProblema",async function(req,res){
-    res.render('tela.ejs',{
-        lista: problemas.mostraTodos(req.body.tipo)   
-    });
+    var situacao = req.body.situacao
+    var id = req.body.id;
+    var x=0;
+    //3 andamento, 2 fechada, 1 aberta
+    if (situacao == "em andadamento"){
+        x=3;
+     } else if (situacao == "fechada"){
+        x=2
+     } else {
+        x=1;
+     }
+     const response= await service.atualizaProblema({
+        id:id,
+        situacao:x
+    }); 
+    res.redirect("/");
+
 })
-app.post("/salvarUsuario",async function(req,res){
-    res.render('tela.ejs',{
-        lista: problemas.mostraTodos(req.body.tipo)   
-    });
-})
-app.post("/usuarioEspecifico",async function(req,res){
-    res.render('tela.ejs',{
-        lista: problemas.usuarioEspecifico(req.body.tipo,req.body.usuario)   
-    });
+app.post("/salvarProblemaNovo",async function(req,res){
+    var titulo = req.body.titulo
+    var situacao=1;
+    var local = req.body.local
+    var desc = req.body.desc
+    const novo ={
+        titulo,
+        situacao,
+        local,
+        desc
+    }
+    const response= await service.salvarProblema({
+        problemaNovo:novo});
+    console.log(response.status +": "+ response.data)
+    res.redirect("/");
 })
 app.post("/sair",async function(req,res){
     res.render('index.hbs',{});
 })
 
-app.post("/cadastrar",async function(req,res){
-    let senha=req.body.senha;
-    if (senha == req.body.confSenha){
-        const response= await service.salvaCadastro({
-            login:req.body.login,
-            senha:senha});
-        if (response.status == 200){
-            res.render('cadastro',{})
-        } else if(response.status == 201) {
-            res.render('index',{})
-        }
-        
-    } else {
-        res.render('cadastro',{})
-    }
-    
-});
-app.post("/logar",async function(req,res){
-    const response= await service.logar({
-        login:req.body.login,
-        senha:req.body.senha});
-        if (response.status == 200){
-            res.render('index',{})
-        } else if(response.status == 201 & (response.data=="admin" | response.data=="colab")) {
-            res.render('tela.ejs',{
-                lista: problemas.mostraTodos(response.data)
-            })
-        } else {
-            res.render('tela.ejs',{
-                lista: problemas.mostraTodos("pop")
-            })
-        }
-});
+
+app.post("/novocomentario",async function(req,res){
+    var nome= req.body.nome;
+    var texto = req.body.novoTexto;
+    const response= await service.novoComentario({
+        nome:nome,
+        texto:texto
+    });
+    res.redirect("/");
+})
+
 app.listen(PORT,function(){
     console.log("Frontend está rodando na porta:"+PORT);
 })
-
-/*app.get("/info", async function(req,res){
-    const response= await service.getInfo();
-    console.log(response.data.user);
-    res.render('form',{codigo_usuario:12345,nome_usuario:"joao"})
-    
-});
-
-app.post("/gravar", async function(req,res){
-    
-    const response= await service.salvaCadastro({codigo:req.body.codigo,
-                                                 nome:req.body.nome,
-                                                 endereco:req.body.endereco});
-    console.log(response.data);
-    res.render('form');
-    
-});
-
-app.get("/buscarTodos", async function(req,res){
-    const {data}= await service.getDados();
-    console.log(data);
-    res.render('form',data)
-    
-});
-
-app.get("/buscar/:key", async function(req,res){
-    const key=req.params.key;
-    const {data}= await service.getDadosPorChave(key);
-    console.log(data);
-    res.render('form',{data})
-    
-});
-
-
-
-
-
-
-*/
