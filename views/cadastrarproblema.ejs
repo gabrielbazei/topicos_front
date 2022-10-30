@@ -1,8 +1,11 @@
 <!doctype html>
-<html lang="en">
+<html lang="PT-BR">
   <head>
-<link href="bootstrap.min.css" rel="stylesheet">
+    <title>Dashboard</title>
 
+    <link rel="canonical" href="https://getbootstrap.com/docs/5.2/examples/dashboard/">
+    <link href="bootstrap.min.css" rel="stylesheet">
+    
     <style>
       .bd-placeholder-img {
         font-size: 1.125rem;
@@ -56,31 +59,22 @@
       }
     </style>
 
-    
-    <!-- Custom styles for this template -->
-    <link href="signin.css" rel="stylesheet">
+    <link href="dashboard.css" rel="stylesheet">
+    <link href="problema.css" rel="stylesheet">
   </head>
-<body class="text-center">
+  <body>
     
-<main class="form-signin w-100 m-auto">
-  <form method="post" action="/logar">
-
-    <h1 class="h3 mb-3 fw-normal">Please sign in</h1>
-
-    <div class="form-floating">
-      <input type="text" name="login" class="form-control" id="floatingInput" placeholder="name@example.com">
-      <label for="floatingInput">Email address</label>
+<header class="navbar navbar-dark sticky-top bg-dark flex-md-nowrap p-0 shadow">
+  <a class="navbar-brand col-md-3 col-lg-2 me-0 px-3 fs-6" href="#">Servico população</a>
+  <button class="navbar-toggler position-absolute d-md-none collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#sidebarMenu" aria-controls="sidebarMenu" aria-expanded="false" aria-label="Toggle navigation">
+    <span class="navbar-toggler-icon"></span>
+  </button>
+</header>
+  <form method="post" action="/salvarProblemaNovo">
+    <div class="principal" style="border: 0">
+      <%- problema %>
     </div>
-    
-    <div class="form-floating">
-      <input type="password" name="senha"  class="form-control" id="floatingPassword" placeholder="Password">
-      <label for="floatingPassword">Password</label>
-    </div>
-    <button class="w-100 btn btn-lg btn-primary" type="submit">Sign in</button>
   </form>
-</main>
-
-
-    
-  </body>
+  <div class="comentarios">
+</body>
 </html>
