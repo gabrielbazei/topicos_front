@@ -80,7 +80,7 @@
     <%- Comentarios %>
   </div>
   <form method="post" action="/novocomentario">
-    <input type="text" hidden disabled value= <%- novoId %>>
+    <input type="text" name="idComentario" hidden value= <%- novoId %>>
     <div class="novo">
         <h5>Comente:</h5>
         <input type="text" name="nome" value="" placeholder="Digite seu nome">

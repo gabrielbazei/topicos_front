@@ -37,7 +37,6 @@ app.post("/logar",async function(req,res){
     const response= await service.logar({
         login:req.body.login,
         senha:req.body.senha});
-
         if(response.status == 201) {
             const response2= await service.mostraproblemas({});
             res.render('dashboard.ejs',{
@@ -51,15 +50,16 @@ app.post("/logar",async function(req,res){
 app.post("/procurar",async function(req,res){
     var id=req.body.problema;
     const response= await service.procuraProblema({
-        problemaID:id});
+        id:id});
     var titulo = response.data.titulo
+    var email = response.data.email
     var situacao = response.data.situacao
     var local = response.data.local
     var desc = response.data.desc
     const response2= await service.procuraComentario({
-        problemaID:id});
+        id:id});
     res.render('problema.ejs',{
-        problema: problemas.mostraEspecifico(id,titulo,situacao,local,desc),
+        problema: problemas.mostraEspecifico(id,titulo,situacao,local,email,desc),
         Comentarios: problemas.carregaComentarios(response2.data),
         novoId: id
     });
@@ -92,18 +92,19 @@ app.post("/salvarProblema",async function(req,res){
 })
 app.post("/salvarProblemaNovo",async function(req,res){
     var titulo = req.body.titulo
+    var email = req.body.email
     var situacao=1;
     var local = req.body.local
     var desc = req.body.desc
     const novo ={
         titulo,
+        email,
         situacao,
         local,
-        desc
+        desc,
     }
     const response= await service.salvarProblema({
         problemaNovo:novo});
-    console.log(response.status +": "+ response.data)
     res.redirect("/");
 })
 app.post("/sair",async function(req,res){
@@ -112,9 +113,11 @@ app.post("/sair",async function(req,res){
 
 
 app.post("/novocomentario",async function(req,res){
+    var id = req.body.idComentario;
     var nome= req.body.nome;
     var texto = req.body.novoTexto;
     const response= await service.novoComentario({
+        id:id,
         nome:nome,
         texto:texto
     });
