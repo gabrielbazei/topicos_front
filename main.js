@@ -37,7 +37,7 @@ app.use(session({
 function isAuthenticated (req, res, next) {
     if (req.session.user) next()
     else next('route')
-  }
+}
 app.get("/",isAuthenticated,async function(req,res){
     const response2= await service.mostraproblemas({});
     res.render('dashboard.ejs',{
@@ -47,10 +47,6 @@ app.get("/",isAuthenticated,async function(req,res){
 app.get('/', function (req, res) {
     res.render('index.hbs',{})
 })
-
-
-
-
 
 //ok
 app.post("/logar",async function(req,res){
@@ -99,18 +95,13 @@ app.post("/procurar",async function(req,res){
     });
 })
 //ok
-app.post("/novoProblema",async function(req,res){
-    if (isAuthenticated){
-        res.render('cadastrarproblema.ejs',{
-            problema: problemas.cadastrarProblema()   
-        });
-    } else {
-        res.redirect('/')
-    }
+app.post("/novoProblema",isAuthenticated,async function(req,res){
+    res.render('cadastrarproblema.ejs',{
+        problema: problemas.cadastrarProblema()   
+    });
 })
 
-app.post("/salvarProblema",async function(req,res){
-    if (isAuthenticated){
+app.post("/salvarProblema", isAuthenticated,async function(req,res){
     var situacao = req.body.situacao
     var id = req.body.id;
     var x=0;
@@ -127,12 +118,8 @@ app.post("/salvarProblema",async function(req,res){
         situacao:x
     }); 
     res.redirect("/");
-    } else {
-        res.redirect('/')
-    }
 })
-app.post("/salvarProblemaNovo",async function(req,res){
-    if (isAuthenticated){
+app.post("/salvarProblemaNovo", isAuthenticated,async function(req,res){
     var titulo = req.body.titulo
     var email = req.body.email
     var situacao=1;
@@ -148,9 +135,6 @@ app.post("/salvarProblemaNovo",async function(req,res){
     const response= await service.salvarProblema({
         problemaNovo:novo});
     res.redirect("/");
-    } else {
-        res.redirect('/')
-    }
 })
 app.post("/sair",async function(req,res){
     req.session.user = null
