@@ -30,26 +30,28 @@ app.use(express.static('public'));
 
 
 app.use(session({
-    genid: function(req) {
-        return Math.random()*1000 // use UUIDs for session IDs
-    },
     secret: 'Bazei',
     resave: false,
     saveUninitialized: true
 }))
 function isAuthenticated (req, res, next) {
-    if (req.session.user) {return true} else {return false}
-}
-app.get("/",async function(req,res){
-    if (isAuthenticated){
-        const response2= await service.mostraproblemas({});
-            res.render('dashboard.ejs',{
-                lista: problemas.mostraTodos(response2.data),
-            })
-    }else{
-        res.render('index',{})
-    }
+    if (req.session.user) next()
+    else next('route')
+  }
+app.get("/",isAuthenticated,async function(req,res){
+    const response2= await service.mostraproblemas({});
+    res.render('dashboard.ejs',{
+        lista: problemas.mostraTodos(response2.data),
+    })
 });
+app.get('/', function (req, res) {
+    res.render('index.hbs',{})
+})
+
+
+
+
+
 //ok
 app.post("/logar",async function(req,res){
     const response= await service.logar({
