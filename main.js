@@ -14,6 +14,7 @@ const { engine }   = require('express-handlebars');
 const service=require("./services/cadastro.service");
 const problemas=require("./services/problemas");
 const { text } = require("body-parser");
+const session = require('express-session')
 
 
 app.engine('hbs', engine({extname: '.hbs',defaultLayout: null}));
@@ -28,17 +29,44 @@ app.use(bodyParser.json());
 app.use(express.static('public'));
 
 
-
-app.get("/", function(req,res){
-    res.render('index',{})
+app.use(session({
+    genid: function(req) {
+        return Math.random()*1000 // use UUIDs for session IDs
+    },
+    secret: 'Bazei',
+    resave: false,
+    saveUninitialized: true
+}))
+function isAuthenticated (req, res, next) {
+    if (req.session.user) {return true} else {return false}
+}
+app.get("/",async function(req,res){
+    if (isAuthenticated){
+        const response2= await service.mostraproblemas({});
+            res.render('dashboard.ejs',{
+                lista: problemas.mostraTodos(response2.data),
+            })
+    }else{
+        res.render('index',{})
+    }
 });
 //ok
 app.post("/logar",async function(req,res){
     const response= await service.logar({
         login:req.body.login,
         senha:req.body.senha});
-
         if(response.status == 201) {
+            
+            
+            req.session.regenerate(function (err) {
+                if (err) res.redirect('/')
+                req.session.user = req.body.login
+                req.session.save(function (err) {
+                  if (err) res.redirect('/')
+                })
+            })
+
+
             const response2= await service.mostraproblemas({});
             res.render('dashboard.ejs',{
                 lista: problemas.mostraTodos(response2.data),
@@ -48,30 +76,39 @@ app.post("/logar",async function(req,res){
         }
 });
 //ok
+/*app.get("/:key", function(req,res){
+    res.redirect('/procurar',{problema:req.params.key})
+});*/
 app.post("/procurar",async function(req,res){
     var id=req.body.problema;
     const response= await service.procuraProblema({
-        problemaID:id});
+        id:id});
     var titulo = response.data.titulo
+    var email = response.data.email
     var situacao = response.data.situacao
     var local = response.data.local
     var desc = response.data.desc
     const response2= await service.procuraComentario({
-        problemaID:id});
+        id:id});
     res.render('problema.ejs',{
-        problema: problemas.mostraEspecifico(id,titulo,situacao,local,desc),
+        problema: problemas.mostraEspecifico(id,titulo,situacao,local,email,desc),
         Comentarios: problemas.carregaComentarios(response2.data),
         novoId: id
     });
 })
 //ok
 app.post("/novoProblema",async function(req,res){
-    res.render('cadastrarproblema.ejs',{
-        problema: problemas.cadastrarProblema()   
-    });
+    if (isAuthenticated){
+        res.render('cadastrarproblema.ejs',{
+            problema: problemas.cadastrarProblema()   
+        });
+    } else {
+        res.redirect('/')
+    }
 })
 
 app.post("/salvarProblema",async function(req,res){
+    if (isAuthenticated){
     var situacao = req.body.situacao
     var id = req.body.id;
     var x=0;
@@ -88,33 +125,49 @@ app.post("/salvarProblema",async function(req,res){
         situacao:x
     }); 
     res.redirect("/");
-
+    } else {
+        res.redirect('/')
+    }
 })
 app.post("/salvarProblemaNovo",async function(req,res){
+    if (isAuthenticated){
     var titulo = req.body.titulo
+    var email = req.body.email
     var situacao=1;
     var local = req.body.local
     var desc = req.body.desc
     const novo ={
         titulo,
+        email,
         situacao,
         local,
-        desc
+        desc,
     }
     const response= await service.salvarProblema({
         problemaNovo:novo});
-    console.log(response.status +": "+ response.data)
     res.redirect("/");
+    } else {
+        res.redirect('/')
+    }
 })
 app.post("/sair",async function(req,res){
+    req.session.user = null
+    req.session.save(function (err) {
+        if (err) res.redirect('/')
+        req.session.regenerate(function (err) {
+          if (err) res.redirect('/')
+        })
+    })
     res.render('index.hbs',{});
 })
 
 
 app.post("/novocomentario",async function(req,res){
+    var id = req.body.idComentario;
     var nome= req.body.nome;
     var texto = req.body.novoTexto;
     const response= await service.novoComentario({
+        id:id,
         nome:nome,
         texto:texto
     });

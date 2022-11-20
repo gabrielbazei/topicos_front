@@ -18,7 +18,7 @@ function mostraTodos(resposta){
       }
       return retorno
 }
-function mostraEspecifico(id,titulo,situacao,local,desc){
+function mostraEspecifico(id,titulo,situacao,local,email,desc){
    var op1,op2,op3;
    //3 andamento, 2 fechada, 1 aberta
    if (situacao==3){
@@ -34,6 +34,8 @@ function mostraEspecifico(id,titulo,situacao,local,desc){
    retorno+='<input type="text"  id="id" hidden name="id" value="'+id+'">'
    retorno+='<h5>Titulo: </h5>'
    retorno+='<input type="text" id="titulo" disabled name="titulo" value="'+titulo+'">'
+   retorno+='<h5>Email Destinatario: </h5>'
+   retorno+='<input type="text" id="local" disabled name="local" value="'+email+'">'
    retorno+='<h5>Local: </h5>'
    retorno+='<input type="text" id="local" disabled name="local" value="'+local+'">'
    retorno+='<h5>Situação: </h5>'
@@ -60,12 +62,14 @@ function cadastrarProblema(){
    var retorno=""
    retorno+='<h5>Titulo: </h5>'
    retorno+='<input type="text" id="titulo" name="titulo" value="">'
+   retorno+='<h5>Email Destinatario: </h5>'
+   retorno+='<input type="text" id="email" name="email" value="">'
    retorno+='<h5>Local: </h5>'
    retorno+='<input type="text" id="local" name="local" value="">'
    retorno+='<h5>Situação: </h5>'
    retorno+='<select name="situacao" disabled id="situacao"><option select>aberta</option><option>fechada</option><option>em andadamento</option></select>'
    retorno+='<h5>Descrição: </h5>'
-   retorno+='<textarea name="descricao"  id="desc"></textarea>'
+   retorno+='<textarea name="desc"id="desc"></textarea>'
    retorno+='<input type="submit" id="salvar" name="commit" value="Salvar">'
    return retorno
 }
