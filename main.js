@@ -74,9 +74,23 @@ app.post("/logar",async function(req,res){
         }
 });
 //ok
-/*app.get("/:key", function(req,res){
-    res.redirect('/procurar',{problema:req.params.key})
-});*/
+app.get("/:key", async function(req,res){
+    var id=req.params.key;
+    const response= await service.procuraProblema({
+        id:id});
+    var titulo = response.data.titulo
+    var email = response.data.email
+    var situacao = response.data.situacao
+    var local = response.data.local
+    var desc = response.data.desc
+    const response2= await service.procuraComentario({
+        id:id});
+    res.render('problema.ejs',{
+        problema: problemas.mostraEspecifico(id,titulo,situacao,local,email,desc),
+        Comentarios: problemas.carregaComentarios(response2.data),
+        novoId: id
+    });
+});
 app.post("/procurar",async function(req,res){
     var id=req.body.problema;
     const response= await service.procuraProblema({
@@ -118,6 +132,9 @@ app.post("/salvarProblema", isAuthenticated,async function(req,res){
         situacao:x
     }); 
     res.redirect("/");
+})
+app.post('/salvarProblema', function (req, res) {
+    res.render('index.hbs',{})
 })
 app.post("/salvarProblemaNovo", isAuthenticated,async function(req,res){
     var titulo = req.body.titulo
